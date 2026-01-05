@@ -1,0 +1,93 @@
+{
+  "kind": "collectionType",
+  "collectionName": "movies",
+  "info": {
+    "singularName": "movie",
+    "pluralName": "movies",
+    "displayName": "Movie"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "m_id": {
+      "type": "string",
+      "required": true,
+      "unique": false
+    },
+    "Title": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "About": {
+      "type": "blocks"
+    },
+    "Genre": {
+      "type": "enumeration",
+      "enum": [
+        "Action",
+        "Drama",
+        "Comedy",
+        "Thriller",
+        "Romance",
+        "Sci-Fi"
+      ]
+    },
+    "ReleaseDate": {
+      "type": "date"
+    },
+    "TotalCollection": {
+      "type": "decimal"
+    },
+    "LanguageWiseCollection": {
+      "type": "json"
+    },
+    "CountryWiseCollection": {
+      "type": "json"
+    },
+    "DayWiseCollection": {
+      "type": "json"
+    },
+    "Cast": {
+      "type": "string"
+    },
+    "Director": {
+      "type": "string"
+    },
+    "Tags": {
+      "type": "string"
+    },
+    "Rating": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10
+    },
+    "Reviews": {
+      "type": "blocks"
+    },
+    "Trailer": {
+      "type": "string"
+    },
+    "Duration": {
+      "type": "integer"
+    },
+    "Popularity": {
+      "type": "integer"
+    },
+    "OccupancyDayWise": {
+      "type": "json"
+    },
+    "Poster": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}

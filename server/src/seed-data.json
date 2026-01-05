@@ -1,0 +1,592 @@
+[
+    {
+        "m_id": "inception-2010",
+        "Title": "Inception",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A skilled thief, the absolute best in the dangerous art of extraction, stealing valuable secrets from deep within the subconscious during the dream state."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Sci-Fi",
+        "ReleaseDate": "2010-07-16",
+        "TotalCollection": 829.9,
+        "LanguageWiseCollection": {
+            "English": 600,
+            "Hindi": 90,
+            "Others": 139.9
+        },
+        "CountryWiseCollection": {
+            "USA": 292,
+            "UK": 90,
+            "India": 120,
+            "Others": 327.9
+        },
+        "DayWiseCollection": {
+            "Day 1": 70,
+            "Day 2": 95,
+            "Day 3": 120
+        },
+        "Cast": "Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page, Tom Hardy",
+        "Director": "Christopher Nolan",
+        "Tags": "Mind-bending, Blockbuster, Sci-Fi Classic",
+        "Rating": 8.8,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A visually stunning and intellectually ambitious sci-fi thriller that rewards multiple viewings."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=YoHD9XEInc0",
+        "Duration": 148,
+        "Popularity": 98,
+        "OccupancyDayWise": {
+            "Weekday": 75,
+            "Weekend": 95
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/9gk7admal4zlSWjCnsf4l4n262z.jpg"
+        }
+    },
+    {
+        "m_id": "dark-knight-2008",
+        "Title": "The Dark Knight",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Action",
+        "ReleaseDate": "2008-07-18",
+        "TotalCollection": 1006.2,
+        "LanguageWiseCollection": {
+            "English": 850,
+            "Hindi": 45,
+            "Others": 111.2
+        },
+        "CountryWiseCollection": {
+            "USA": 534.9,
+            "UK": 96.3,
+            "India": 25,
+            "Others": 350
+        },
+        "DayWiseCollection": {
+            "Day 1": 67.1,
+            "Day 2": 75.2,
+            "Day 3": 98.4
+        },
+        "Cast": "Christian Bale, Heath Ledger, Aaron Eckhart, Michael Caine",
+        "Director": "Christopher Nolan",
+        "Tags": "Epic, Dark, Masterpiece, Superhero",
+        "Rating": 9.0,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A haunting, complex, and unforgettable film that redefined the superhero genre. Heath Ledger's performance is legendary.",
+                        "italic": true
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=EXeTwQWrcwY",
+        "Duration": 152,
+        "Popularity": 99,
+        "OccupancyDayWise": {
+            "Weekday": 82,
+            "Weekend": 98
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/qJ2tW6WMUDr9p1v33nZIUDMGvBq.jpg"
+        }
+    },
+    {
+        "m_id": "interstellar-2014",
+        "Title": "Interstellar",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Sci-Fi",
+        "ReleaseDate": "2014-11-07",
+        "TotalCollection": 701.7,
+        "LanguageWiseCollection": {
+            "English": 580,
+            "Hindi": 30,
+            "Others": 91.7
+        },
+        "CountryWiseCollection": {
+            "USA": 188,
+            "UK": 35,
+            "China": 139,
+            "Others": 339.7
+        },
+        "DayWiseCollection": {
+            "Day 1": 47.5,
+            "Day 2": 52.1,
+            "Day 3": 60.4
+        },
+        "Cast": "Matthew McConaughey, Anne Hathaway, Jessica Chastain, Michael Caine",
+        "Director": "Christopher Nolan",
+        "Tags": "Space, Emotional, Time, Cinematic",
+        "Rating": 8.7,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A breathtaking cosmic journey with an emotional core. The score by Hans Zimmer is spectacular."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+        "Duration": 169,
+        "Popularity": 97,
+        "OccupancyDayWise": {
+            "Weekday": 68,
+            "Weekend": 92
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/gEU2QniE6E97NIvSdq7706NBobV.jpg"
+        }
+    },
+    {
+        "m_id": "pulp-fiction-1994",
+        "Title": "Pulp Fiction",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Thriller",
+        "ReleaseDate": "1994-10-14",
+        "TotalCollection": 213.9,
+        "LanguageWiseCollection": {
+            "English": 180,
+            "French": 15,
+            "Others": 18.9
+        },
+        "CountryWiseCollection": {
+            "USA": 107.9,
+            "UK": 15,
+            "France": 12,
+            "Others": 79
+        },
+        "DayWiseCollection": {
+            "Day 1": 9.3,
+            "Day 2": 11.2,
+            "Day 3": 12.5
+        },
+        "Cast": "John Travolta, Uma Thurman, Samuel L. Jackson, Bruce Willis",
+        "Director": "Quentin Tarantino",
+        "Tags": "Cult, Non-linear, Dialogue, Style",
+        "Rating": 8.9,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "One of the most influential films ever made. Brilliant writing and iconic performances."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=s7EdQ4FqbhY",
+        "Duration": 154,
+        "Popularity": 96,
+        "OccupancyDayWise": {
+            "Weekday": 60,
+            "Weekend": 85
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/fIE33mllM1nPvT8GvAsQ70bpqyX.jpg"
+        }
+    },
+    {
+        "m_id": "matrix-1999",
+        "Title": "The Matrix",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Sci-Fi",
+        "ReleaseDate": "1999-03-31",
+        "TotalCollection": 467.2,
+        "LanguageWiseCollection": {
+            "English": 350,
+            "Spanish": 40,
+            "Others": 77.2
+        },
+        "CountryWiseCollection": {
+            "USA": 171.5,
+            "UK": 28,
+            "Australia": 22,
+            "Others": 245.7
+        },
+        "DayWiseCollection": {
+            "Day 1": 27.8,
+            "Day 2": 31.4,
+            "Day 3": 35.1
+        },
+        "Cast": "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving",
+        "Director": "Lana Wachowski, Lilly Wachowski",
+        "Tags": "Simulation, Action, Philosophy, Iconic",
+        "Rating": 8.7,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A groundbreaking blend of philosophy and action. Changed cinema forever."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=m8e-FF8MsqU",
+        "Duration": 136,
+        "Popularity": 98,
+        "OccupancyDayWise": {
+            "Weekday": 70,
+            "Weekend": 94
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/f89U3Y9S7qVpSjwSR9XSafeA9zs.jpg"
+        }
+    },
+    {
+        "m_id": "fight-club-1999",
+        "Title": "Fight Club",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much, much more."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Drama",
+        "ReleaseDate": "1999-10-15",
+        "TotalCollection": 101.2,
+        "LanguageWiseCollection": {
+            "English": 90,
+            "Others": 11.2
+        },
+        "CountryWiseCollection": {
+            "USA": 37,
+            "UK": 10,
+            "Others": 54.2
+        },
+        "DayWiseCollection": {
+            "Day 1": 11.2,
+            "Day 2": 12.5,
+            "Day 3": 14.1
+        },
+        "Cast": "Brad Pitt, Edward Norton, Helena Bonham Carter, Jared Leto",
+        "Director": "David Fincher",
+        "Tags": "Psychological, Twist, Anarchy, Cult",
+        "Rating": 8.8,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "Gritty, visceral, and incredibly thought-provoking. David Fincher at his best."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=qtRKdVHc-cE",
+        "Duration": 139,
+        "Popularity": 95,
+        "OccupancyDayWise": {
+            "Weekday": 55,
+            "Weekend": 88
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/pB8BM79JsS0vS9pZ9u3I3tUnR9W.jpg"
+        }
+    },
+    {
+        "m_id": "parasite-2019",
+        "Title": "Parasite",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Thriller",
+        "ReleaseDate": "2019-05-30",
+        "TotalCollection": 263.1,
+        "LanguageWiseCollection": {
+            "Korean": 200,
+            "English": 40,
+            "Others": 23.1
+        },
+        "CountryWiseCollection": {
+            "South Korea": 75,
+            "USA": 53.4,
+            "Japan": 40,
+            "Others": 94.7
+        },
+        "DayWiseCollection": {
+            "Day 1": 15.2,
+            "Day 2": 18.5,
+            "Day 3": 21.4
+        },
+        "Cast": "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong, Choi Woo-shik",
+        "Director": "Bong Joon-ho",
+        "Tags": "Class Warfare, Suspense, Masterpiece, Oscar Winner",
+        "Rating": 8.5,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A masterclass in tension and social commentary. Absolutely brilliant."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=5xH0HfJHsaY",
+        "Duration": 132,
+        "Popularity": 94,
+        "OccupancyDayWise": {
+            "Weekday": 65,
+            "Weekend": 89
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/7IiTTjMvEsvvUvNqS9qV9CqZBrW.jpg"
+        }
+    },
+    {
+        "m_id": "avengers-endgame-2019",
+        "Title": "Avengers: Endgame",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "After the devastating events of Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more in order to restore balance to the universe."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Action",
+        "ReleaseDate": "2019-04-26",
+        "TotalCollection": 2797.5,
+        "LanguageWiseCollection": {
+            "English": 2000,
+            "Hindi": 60,
+            "Chinese": 600,
+            "Others": 137.5
+        },
+        "CountryWiseCollection": {
+            "USA": 858,
+            "China": 632,
+            "India": 65,
+            "Others": 1242.5
+        },
+        "DayWiseCollection": {
+            "Day 1": 357.1,
+            "Day 2": 340.5,
+            "Day 3": 320.4
+        },
+        "Cast": "Robert Downey Jr., Chris Evans, Mark Ruffalo, Scarlett Johansson",
+        "Director": "Anthony Russo, Joe Russo",
+        "Tags": "Epic Finale, MCU, Blockbuster, Emotional",
+        "Rating": 8.4,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "The ultimate payoff for a decade of storytelling. A massive cinematic achievement."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=TcMBFSGVi1c",
+        "Duration": 181,
+        "Popularity": 100,
+        "OccupancyDayWise": {
+            "Weekday": 90,
+            "Weekend": 100
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/or06vS3neeTkaB1ySjZ6PzI6oZg.jpg"
+        }
+    },
+    {
+        "m_id": "joker-2019",
+        "Title": "Joker",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society. He then embarks on a downward spiral of revolution and bloody crime. This path brings him face-to-face with his alter-ego: the Joker."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Drama",
+        "ReleaseDate": "2019-10-04",
+        "TotalCollection": 1074.4,
+        "LanguageWiseCollection": {
+            "English": 800,
+            "Spanish": 100,
+            "Others": 174.4
+        },
+        "CountryWiseCollection": {
+            "USA": 335.4,
+            "UK": 70,
+            "India": 10,
+            "Others": 659
+        },
+        "DayWiseCollection": {
+            "Day 1": 96.2,
+            "Day 2": 110.1,
+            "Day 3": 115.5
+        },
+        "Cast": "Joaquin Phoenix, Robert De Niro, Zazie Beetz, Frances Conroy",
+        "Director": "Todd Phillips",
+        "Tags": "Psychological, Gritty, Performance, Character Study",
+        "Rating": 8.4,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "Joaquin Phoenix gives one of the greatest performances of his career. A dark, disturbing, and beautiful film."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=zAGVQLHvwOY",
+        "Duration": 122,
+        "Popularity": 97,
+        "OccupancyDayWise": {
+            "Weekday": 78,
+            "Weekend": 96
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/udDclsvNsR9STIvbchv9bgvYv1o.jpg"
+        }
+    },
+    {
+        "m_id": "avatar-2009",
+        "Title": "Avatar",
+        "About": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home."
+                    }
+                ]
+            }
+        ],
+        "Genre": "Sci-Fi",
+        "ReleaseDate": "2009-12-18",
+        "TotalCollection": 2923.7,
+        "LanguageWiseCollection": {
+            "English": 2000,
+            "French": 200,
+            "Others": 723.7
+        },
+        "CountryWiseCollection": {
+            "USA": 785,
+            "China": 261,
+            "France": 175,
+            "Others": 1702.7
+        },
+        "DayWiseCollection": {
+            "Day 1": 77,
+            "Day 2": 85,
+            "Day 3": 95
+        },
+        "Cast": "Sam Worthington, Zoe Saldana, Sigourney Weaver, Stephen Lang",
+        "Director": "James Cameron",
+        "Tags": "3D, Pandora, Visuals, Sci-Fi Epic",
+        "Rating": 7.9,
+        "Reviews": [
+            {
+                "type": "paragraph",
+                "children": [
+                    {
+                        "type": "text",
+                        "text": "A visual spectacle that changed the way we watch movies. Pandora is breathtaking."
+                    }
+                ]
+            }
+        ],
+        "Trailer": "https://www.youtube.com/watch?v=5PSNL1qAk6Y",
+        "Duration": 162,
+        "Popularity": 98,
+        "OccupancyDayWise": {
+            "Weekday": 72,
+            "Weekend": 95
+        },
+        "Poster": {
+            "url": "https://image.tmdb.org/t/p/original/6EiRUJvY7HDNZQ23CRA9YV8Cq3e.jpg"
+        }
+    }
+]
