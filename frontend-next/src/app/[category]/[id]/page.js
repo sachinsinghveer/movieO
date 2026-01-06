@@ -13,6 +13,12 @@ import {
     Play,
     Globe,
     Languages,
+    Ticket,
+    Coins,
+    Flame,
+    Zap,
+    Info,
+    TrendingDown
 } from "lucide-react";
 import {
     BarChart,
@@ -44,28 +50,59 @@ const Detail = () => {
         const getData = async () => {
             setLoading(true);
             try {
-                // Fetch All Data from TMDB
+                // 1. Fetch from Strapi (Primary)
+                let strapiData = null;
+                try {
+                    const strapiResponse = await fetch(`${apiConfig.strapiBaseUrl}/movies?filters[m_id][$eq]=${id}`);
+                    const strapiJson = await strapiResponse.json();
+                    if (strapiJson.data && strapiJson.data.length > 0) {
+                        strapiData = strapiJson.data[0].attributes;
+                    }
+                } catch (e) {
+                    console.log("Strapi not reachable, using dummy/TMDB");
+                }
+
+                // 2. Fetch All Data from TMDB (Secondary/Metadata)
                 const tmdbResponse = await tmdbApi.detail(category, id, { params: {} });
                 const creditsResponse = await tmdbApi.credits(category, id);
                 const videosResponse = await tmdbApi.getVideos(category, id);
                 const reviewsResponse = await tmdbApi.getReviews(category, id);
 
-                // Procedural Generation for Analytics (Based on TMDB ID/Stats)
-                const baseCollection = (tmdbResponse.revenue > 0 ? tmdbResponse.revenue : tmdbResponse.vote_count * 15000);
-
-                // Format TMDB reviews
-                const formattedReviews = reviewsResponse.results ? reviewsResponse.results.slice(0, 5).map(review => ({
-                    user: review.author || review.author_details?.username || 'Anonymous',
-                    date: review.created_at,
-                    rating: review.author_details?.rating || (tmdbResponse.vote_average || 7),
-                    comment: review.content.length > 300 ? review.content.substring(0, 300) + '...' : review.content
-                })) : [
-                    { user: "Film Enthusiast", date: new Date().toISOString(), rating: 9, comment: "Absolutely stunning visuals and great story." },
-                    { user: "Cinema Lover", date: new Date(Date.now() - 86400000).toISOString(), rating: 8, comment: "A solid addition to the franchise." }
-                ];
+                // Dummy Data Fallbacks (for when Strapi field is null/empty)
+                const dummy = {
+                    TotalCollection: 1250000000,
+                    LanguageWiseCollection: [
+                        { language: "Hindi", collection: 850000000 },
+                        { language: "Telugu", collection: 250000000 },
+                        { language: "Tamil", collection: 100000000 },
+                        { language: "Others", collection: 50000000 }
+                    ],
+                    CountryWiseCollection: [
+                        { country: "Domestic (India)", collection: 1050000000 },
+                        { country: "International", collection: 200000000 }
+                    ],
+                    DayWiseCollection: [
+                        { day: "Fri", collection: 300000000 },
+                        { day: "Sat", collection: 450000000 },
+                        { day: "Sun", collection: 400000000 },
+                        { day: "Mon", collection: 60000000 },
+                        { day: "Tue", collection: 40000000 }
+                    ],
+                    Tags: "Blockbuster, Action-Packed, Massive Hit, Family Choice, Trending in India",
+                    Popularity: 98.5,
+                    OccupancyDayWise: [
+                        { day: "Fri", occupancy: 85 },
+                        { day: "Sat", occupancy: 95 },
+                        { day: "Sun", occupancy: 98 },
+                        { day: "Mon", occupancy: 40 },
+                        { day: "Tue", occupancy: 35 }
+                    ],
+                    budzet: 450000000,
+                    advanceBookings: 150000000
+                };
 
                 const customMovie = {
-                    // Identity
+                    // Identity (Always TMDB)
                     id: tmdbResponse.id,
                     title: tmdbResponse.title || tmdbResponse.name,
                     poster: apiConfig.originalImage(tmdbResponse.poster_path || tmdbResponse.backdrop_path),
@@ -75,7 +112,19 @@ const Detail = () => {
                     rating: tmdbResponse.vote_average || 0,
                     about: tmdbResponse.overview,
 
-                    // Metadata
+                    // Strapi Overrides or Dummy Fallbacks
+                    totalCollection: strapiData?.TotalCollection || dummy.TotalCollection,
+                    dayWiseCollection: strapiData?.DayWiseCollection || dummy.DayWiseCollection,
+                    languageWiseCollection: strapiData?.LanguageWiseCollection || dummy.LanguageWiseCollection,
+                    countryWiseCollection: strapiData?.CountryWiseCollection || dummy.CountryWiseCollection,
+                    tags: (strapiData?.Tags || dummy.Tags).split(',').map(tag => tag.trim()),
+                    popularity: strapiData?.Popularity || tmdbResponse.popularity || dummy.Popularity,
+                    budget: strapiData?.budzet || dummy.budzet,
+                    advanceBookings: strapiData?.advanceBookings || dummy.advanceBookings,
+                    occupancyData: strapiData?.OccupancyDayWise || dummy.OccupancyDayWise,
+                    inCinemas: strapiData?.inCinemas !== undefined ? strapiData.inCinemas : true,
+
+                    // Metadata (Always TMDB)
                     genre: tmdbResponse.genres ? tmdbResponse.genres.map(g => g.name) : [],
                     duration: tmdbResponse.runtime || (tmdbResponse.episode_run_time ? tmdbResponse.episode_run_time[0] : 0),
                     director: creditsResponse.crew?.find(f => f.job === 'Director')?.name || 'Unknown',
@@ -85,36 +134,14 @@ const Detail = () => {
                         image: c.profile_path ? apiConfig.w500Image(c.profile_path) : null
                     })) : [],
                     trailer: videosResponse.results?.length > 0 ? `https://www.youtube.com/watch?v=${videosResponse.results[0].key}` : null,
-                    popularity: tmdbResponse.popularity,
 
-                    // Generated Analytics (For Premium UI)
-                    totalCollection: baseCollection,
-                    occupancy: tmdbResponse.popularity > 100 ? "High" : "Standard",
-                    tags: ["Trending", "Must Watch", "Critics Pick"].sort(() => 0.5 - Math.random()).slice(0, 2),
-
-                    // Generate Day-wise collection curve
-                    dayWiseCollection: [
-                        { day: 'Fri', collection: baseCollection * 0.15 },
-                        { day: 'Sat', collection: baseCollection * 0.35 },
-                        { day: 'Sun', collection: baseCollection * 0.30 },
-                        { day: 'Mon', collection: baseCollection * 0.10 },
-                        { day: 'Tue', collection: baseCollection * 0.10 }
-                    ],
-
-                    // Generate Language distribution based on Original Language
-                    languageWiseCollection: [
-                        { language: (tmdbResponse.original_language || 'en').toUpperCase(), collection: baseCollection * 0.7 },
-                        { language: 'Others', collection: baseCollection * 0.3 }
-                    ],
-
-                    // Generate Country distribution
-                    countryWiseCollection: [
-                        { country: 'Domestic', collection: baseCollection * 0.6 },
-                        { country: 'Intl', collection: baseCollection * 0.4 }
-                    ],
-
-                    // Real TMDB Reviews (or fallback to simulated ones)
-                    reviews: formattedReviews
+                    // Reviews (Strapi first, then TMDB)
+                    reviews: strapiData?.Reviews || (reviewsResponse.results ? reviewsResponse.results.slice(0, 5).map(review => ({
+                        user: review.author || review.author_details?.username || 'Anonymous',
+                        date: review.created_at,
+                        rating: review.author_details?.rating || (tmdbResponse.vote_average || 7),
+                        comment: review.content.length > 300 ? review.content.substring(0, 300) + '...' : review.content
+                    })) : [])
                 };
 
                 setMovie(customMovie);
@@ -136,23 +163,23 @@ const Detail = () => {
 
     const formatCurrency = (amount) => {
         try {
-            return new Intl.NumberFormat("en-US", {
+            return new Intl.NumberFormat("en-IN", {
                 style: "currency",
-                currency: "USD",
+                currency: "INR",
                 maximumFractionDigits: 0,
             }).format(amount || 0);
-        } catch (e) { return '$0'; }
+        } catch (e) { return '₹0'; }
     };
 
     const formatCompactCurrency = (amount) => {
         try {
-            return new Intl.NumberFormat("en-US", {
+            return new Intl.NumberFormat("en-IN", {
                 style: "currency",
-                currency: "USD",
+                currency: "INR",
                 notation: "compact",
                 maximumFractionDigits: 1,
             }).format(amount || 0);
-        } catch (e) { return '$0'; }
+        } catch (e) { return '₹0'; }
     };
 
     return (
@@ -205,6 +232,16 @@ const Detail = () => {
                                             {typeof genre === 'string' ? genre : genre.name}
                                         </span>
                                     ))}
+                                    {movie.isHOTYear && (
+                                        <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full flex items-center gap-1 border border-red-500/30 animate-pulse">
+                                            <Flame className="size-4" /> HOT 2026
+                                        </span>
+                                    )}
+                                    {movie.inCinemas && (
+                                        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full flex items-center gap-1 border border-green-500/30">
+                                            <Zap className="size-4" /> In Cinemas
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
@@ -237,12 +274,27 @@ const Detail = () => {
                                 )}
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                <DollarSign className="size-6 text-green-400" />
-                                <span className="text-3xl text-green-400">
-                                    {formatCompactCurrency(movie.totalCollection)}
-                                </span>
-                                <span className="text-zinc-400">Total Collection</span>
+                            <div className="flex flex-wrap items-center gap-8">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-3xl text-green-400 font-bold">₹</span>
+                                    <span className="text-3xl text-green-400">
+                                        {formatCompactCurrency(movie.totalCollection).replace('₹', '')}
+                                    </span>
+                                    <div className="flex flex-col">
+                                        <span className="text-zinc-400 text-xs uppercase tracking-wider">Total Collection</span>
+                                        <span className="text-green-500/60 text-[10px]">Gross Worldwide</span>
+                                    </div>
+                                </div>
+
+                                {movie.advanceBookings > 0 && (
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900/50 rounded-lg border border-zinc-800">
+                                        <Ticket className="size-5 text-purple-400" />
+                                        <div className="flex flex-col">
+                                            <span className="text-purple-300 font-semibold">{formatCompactCurrency(movie.advanceBookings)}</span>
+                                            <span className="text-zinc-500 text-[10px] uppercase">Advance Bookings</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex gap-4">
@@ -394,20 +446,19 @@ const Detail = () => {
                             </div>
                         </div>
 
-                        {/* Country-wise */}
+                        {/* Occupancy Tracking */}
                         <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
                             <div className="flex items-center gap-2 mb-6">
-                                <Globe className="size-6 text-purple-400" />
-                                <h3 className="text-xl font-semibold">Country-wise Collection</h3>
+                                <Users className="size-6 text-orange-400" />
+                                <h3 className="text-xl font-semibold">Theater Occupancy Tracker</h3>
                             </div>
                             <div className="h-[300px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={movie.countryWiseCollection}>
+                                    <BarChart data={movie.occupancyData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                                        <XAxis dataKey="country" stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
+                                        <XAxis dataKey="day" stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
                                         <YAxis
                                             stroke="#a1a1aa"
-                                            tickFormatter={(value) => formatCompactCurrency(value)}
                                             tick={{ fill: '#a1a1aa' }}
                                         />
                                         <Tooltip
@@ -417,12 +468,42 @@ const Detail = () => {
                                                 borderRadius: "8px",
                                                 color: "#fff"
                                             }}
-                                            formatter={(value) => [formatCurrency(value), "Collection"]}
                                         />
-                                        <Bar dataKey="collection" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                                        <Bar dataKey="occupancy" fill="#f97316" radius={[8, 8, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Country-wise */}
+                    <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
+                        <div className="flex items-center gap-2 mb-6">
+                            <Globe className="size-6 text-purple-400" />
+                            <h3 className="text-xl font-semibold">Country-wise Collection Breakdown</h3>
+                        </div>
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={movie.countryWiseCollection}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                                    <XAxis dataKey="country" stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
+                                    <YAxis
+                                        stroke="#a1a1aa"
+                                        tickFormatter={(value) => formatCompactCurrency(value)}
+                                        tick={{ fill: '#a1a1aa' }}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: "#18181b",
+                                            border: "1px solid #3f3f46",
+                                            borderRadius: "8px",
+                                            color: "#fff"
+                                        }}
+                                        formatter={(value) => [formatCurrency(value), "Collection"]}
+                                    />
+                                    <Bar dataKey="collection" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
                 </div>
@@ -455,18 +536,22 @@ const Detail = () => {
                 )}
 
                 {/* Additional Info */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
-                        <p className="text-sm text-zinc-500 mb-1">Movie ID</p>
-                        <p className="text-purple-300">{movie.id}</p>
+                        <p className="text-sm text-zinc-500 mb-1 flex items-center gap-2"><Coins className="size-4" /> Budget</p>
+                        <p className="text-purple-300 font-semibold">{formatCurrency(movie.budget)}</p>
                     </div>
                     <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
-                        <p className="text-sm text-zinc-500 mb-1">Duration</p>
-                        <p className="text-purple-300">{movie.duration} minutes</p>
+                        <p className="text-sm text-zinc-500 mb-1 flex items-center gap-2"><Clock className="size-4" /> Duration</p>
+                        <p className="text-purple-300 font-semibold">{movie.duration} minutes</p>
                     </div>
                     <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
-                        <p className="text-sm text-zinc-500 mb-1">Release Year</p>
-                        <p className="text-purple-300">{movie.year}</p>
+                        <p className="text-sm text-zinc-500 mb-1 flex items-center gap-2"><Calendar className="size-4" /> Release Year</p>
+                        <p className="text-purple-300 font-semibold">{movie.year}</p>
+                    </div>
+                    <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
+                        <p className="text-sm text-zinc-500 mb-1 flex items-center gap-2"><Info className="size-4" /> Status</p>
+                        <p className="text-orange-400 font-semibold">{movie.inCinemas ? 'Currently Screening' : 'Ended / Upcoming'}</p>
                     </div>
                 </div>
             </div>

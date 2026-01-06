@@ -1,6 +1,7 @@
 const apiConfig = {
     baseUrl: 'https://api.themoviedb.org/3/',
     apiKey: process.env.NEXT_PUBLIC_TMDB_API_KEY,
+    strapiBaseUrl: 'http://localhost:1337/api',
     originalImage: (imgPath) => `https://image.tmdb.org/t/p/original/${imgPath}`,
     w500Image: (imgPath) => `https://image.tmdb.org/t/p/w500/${imgPath}`
 }

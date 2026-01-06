@@ -16,28 +16,6 @@
       "required": true,
       "unique": false
     },
-    "Title": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
-    "About": {
-      "type": "blocks"
-    },
-    "Genre": {
-      "type": "enumeration",
-      "enum": [
-        "Action",
-        "Drama",
-        "Comedy",
-        "Thriller",
-        "Romance",
-        "Sci-Fi"
-      ]
-    },
-    "ReleaseDate": {
-      "type": "date"
-    },
     "TotalCollection": {
       "type": "decimal"
     },
@@ -50,28 +28,11 @@
     "DayWiseCollection": {
       "type": "json"
     },
-    "Cast": {
-      "type": "string"
-    },
-    "Director": {
-      "type": "string"
-    },
     "Tags": {
       "type": "string"
     },
-    "Rating": {
-      "type": "decimal",
-      "min": 0,
-      "max": 10
-    },
     "Reviews": {
       "type": "blocks"
-    },
-    "Trailer": {
-      "type": "string"
-    },
-    "Duration": {
-      "type": "integer"
     },
     "Popularity": {
       "type": "integer"
@@ -79,15 +40,27 @@
     "OccupancyDayWise": {
       "type": "json"
     },
-    "Poster": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
+    "budzet": {
+      "type": "biginteger"
+    },
+    "inCinemas": {
+      "type": "boolean",
+      "default": false
+    },
+    "isHOTYear": {
+      "type": "boolean",
+      "default": false
+    },
+    "isUpcoming": {
+      "type": "boolean",
+      "default": false
+    },
+    "carousel": {
+      "type": "boolean",
+      "default": false
+    },
+    "advanceBookings": {
+      "type": "biginteger"
     }
   }
 }

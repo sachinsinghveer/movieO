@@ -25,13 +25,13 @@ const MovieCard = props => {
         rating: item.vote_average || 0,
         genre: (item.genre_ids || []).map(id => genreMap[id]).filter(Boolean).slice(0, 3), // Map IDs to names
         year: (item.release_date || item.first_air_date || "N/A").split('-')[0],
-        totalCollection: (item.vote_count || 100) * 15000 + (item.id % 1000) * 1000 // Deterministic random-like value based on ID
+        totalCollection: ((item.vote_count || 100) * 15000 + (item.id % 1000) * 1000) * 83 // Convert USD-scale mock to INR
     };
 
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat("en-US", {
+        return new Intl.NumberFormat("en-IN", {
             style: "currency",
-            currency: "USD",
+            currency: "INR",
             notation: "compact",
             maximumFractionDigits: 1,
         }).format(amount);
@@ -87,9 +87,9 @@ const MovieCard = props => {
                             <Calendar className="size-3.5" />
                             <span>{movie.year}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <DollarSign className="size-3.5 text-green-400" />
-                            <span className="text-green-400 font-medium">{formatCurrency(movie.totalCollection)}</span>
+                        <div className="flex items-center gap-1.5 font-bold text-green-400">
+                            <span className="text-sm">₹</span>
+                            <span className="font-medium text-xs tracking-tighter">{formatCurrency(movie.totalCollection).replace('₹', '')}</span>
                         </div>
                     </div>
 

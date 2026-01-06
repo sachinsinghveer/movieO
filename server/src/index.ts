@@ -10,9 +10,9 @@ export default {
     console.log('----------------------------------------------------');
 
     try {
-      const seedFilePath = 'C:\\Users\\pc\\Desktop\\projectx\\server\\src\\seed-data.json';
+      const seedFilePath = path.join(process.cwd(), 'src', 'seed-data.json');
       if (!fs.existsSync(seedFilePath)) {
-        console.error('BOOTSTRAP ERROR: Seed file not found');
+        console.error('BOOTSTRAP ERROR: Seed file not found at:', seedFilePath);
         return;
       }
 

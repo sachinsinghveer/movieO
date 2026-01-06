@@ -441,18 +441,17 @@ export interface ApiMovieMovie extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    About: Schema.Attribute.Blocks;
-    Cast: Schema.Attribute.String;
+    advanceBookings: Schema.Attribute.BigInteger;
+    budzet: Schema.Attribute.BigInteger;
+    carousel: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     CountryWiseCollection: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     DayWiseCollection: Schema.Attribute.JSON;
-    Director: Schema.Attribute.String;
-    Duration: Schema.Attribute.Integer;
-    Genre: Schema.Attribute.Enumeration<
-      ['Action', 'Drama', 'Comedy', 'Thriller', 'Romance', 'Sci-Fi']
-    >;
+    inCinemas: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isHOTYear: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isUpcoming: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     LanguageWiseCollection: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::movie.movie'> &
@@ -460,24 +459,10 @@ export interface ApiMovieMovie extends Struct.CollectionTypeSchema {
     m_id: Schema.Attribute.String & Schema.Attribute.Required;
     OccupancyDayWise: Schema.Attribute.JSON;
     Popularity: Schema.Attribute.Integer;
-    Poster: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     publishedAt: Schema.Attribute.DateTime;
-    Rating: Schema.Attribute.Decimal &
-      Schema.Attribute.SetMinMax<
-        {
-          max: 10;
-          min: 0;
-        },
-        number
-      >;
-    ReleaseDate: Schema.Attribute.Date;
     Reviews: Schema.Attribute.Blocks;
     Tags: Schema.Attribute.String;
-    Title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
     TotalCollection: Schema.Attribute.Decimal;
-    Trailer: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
