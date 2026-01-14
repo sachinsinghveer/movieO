@@ -50,16 +50,16 @@ const Detail = () => {
         const getData = async () => {
             setLoading(true);
             try {
-                // 1. Fetch from Strapi (Primary)
+                // 1. Fetch from MongoDB (Internal API)
                 let strapiData = null;
                 try {
-                    const strapiResponse = await fetch(`${apiConfig.strapiBaseUrl}/movies?filters[m_id][$eq]=${id}`);
-                    const strapiJson = await strapiResponse.json();
-                    if (strapiJson.data && strapiJson.data.length > 0) {
-                        strapiData = strapiJson.data[0].attributes;
+                    const response = await fetch(`/api/movies/${id}`);
+                    const json = await response.json();
+                    if (json.success && json.data) {
+                        strapiData = json.data;
                     }
                 } catch (e) {
-                    console.log("Strapi not reachable, using dummy/TMDB");
+                    console.log("MongoDB API not reachable, using dummy/TMDB", e);
                 }
 
                 // 2. Fetch All Data from TMDB (Secondary/Metadata)
