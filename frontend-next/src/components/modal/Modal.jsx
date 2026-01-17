@@ -1,20 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 
 import PropTypes from 'prop-types';
 
 const Modal = props => {
 
-    const [active, setActive] = useState(false);
-
-    useEffect(() => {
-        setActive(props.active);
-    }, [props.active]);
+    const { active, id, children } = props;
 
     return (
-        <div id={props.id} className={`fixed z-[100] inset-0 overflow-auto bg-black/40 flex items-center justify-center opacity-0 invisible transition-opacity duration-300 ${active ? '!opacity-100 !visible' : ''}`}>
-            {props.children}
+        <div id={id} className={`fixed z-[100] inset-0 overflow-auto bg-black/40 flex items-center justify-center opacity-0 invisible transition-opacity duration-300 ${active ? '!opacity-100 !visible' : ''}`}>
+            {children}
         </div>
     );
 }

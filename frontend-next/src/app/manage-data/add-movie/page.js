@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
     Save,
     Database,
@@ -11,10 +12,15 @@ import {
     Calendar,
     CheckCircle,
     AlertCircle,
-    Loader2
+    Loader2,
+    ArrowLeft
 } from 'lucide-react';
 
 const AddMovie = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const queryId = searchParams.get('m_id');
+
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -40,6 +46,13 @@ const AddMovie = () => {
         Reviews: '[\n  { "user": "John", "comment": "Great movie!", "rating": 5 }\n]'
     });
 
+    useEffect(() => {
+        if (queryId) {
+            setFormData(prev => ({ ...prev, m_id: queryId }));
+            handleLoad(queryId);
+        }
+    }, [queryId]);
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
@@ -48,25 +61,57 @@ const AddMovie = () => {
         }));
     };
 
-    const handleLoad = async () => {
-        if (!formData.m_id) {
+    const autoCleanJSON = (name) => {
+        let val = formData[name].trim();
+
+        // Remove trailing commas before closing brackets (common copy-paste error)
+        val = val.replace(/,\s*([\]}])/g, '$1');
+
+        // If user pasted "PropertyName": [ ... ]
+        // We extract just the [ ... ] part
+        const propertyRegex = /^"[a-zA-Z0-9_]+"\s*:\s*(\[|\{)/;
+        if (propertyRegex.test(val)) {
+            val = val.replace(/^"[a-zA-Z0-9_]+"\s*:\s*/, "");
+        }
+
+        try {
+            const parsed = JSON.parse(val);
+            setFormData(prev => ({
+                ...prev,
+                [name]: JSON.stringify(parsed, null, 2)
+            }));
+            setMessage({ type: 'success', text: 'JSON cleaned and formatted!' });
+        } catch (e) {
+            setMessage({ type: 'error', text: `Syntax Error: ${e.message}` });
+        }
+    };
+
+    const handleLoad = async (idToFetch) => {
+        const targetId = idToFetch || formData.m_id;
+        if (!targetId) {
             setMessage({ type: 'error', text: 'Please enter a TMDB ID to load.' });
             return;
         }
         setFetching(true);
         setMessage({ type: '', text: '' });
         try {
-            const res = await fetch(`/api/movies/${formData.m_id}`);
-            const json = await res.json();
+            const res = await fetch(`/api/movies/${targetId}`);
 
-            if (!res.ok || !json.success) {
+            if (!res.ok) {
                 throw new Error("Movie not found or API error");
             }
 
+            const json = await res.json();
+
+            if (!json.success) {
+                throw new Error(json.message || "Movie not found");
+            }
+
             const data = json.data;
+
             setFormData({
                 m_id: data.m_id,
-                TotalCollection: data.TotalCollection?.$numberDecimal || data.TotalCollection || '',
+                TotalCollection: data.TotalCollection || '',
                 budzet: data.budzet || '',
                 Popularity: data.Popularity || '',
                 advanceBookings: data.advanceBookings || '',
@@ -85,7 +130,6 @@ const AddMovie = () => {
             setMessage({ type: 'success', text: `Loaded data for ID: ${data.m_id}. You are now in EDIT mode.` });
         } catch (error) {
             setMessage({ type: 'error', text: error.message });
-            // Keep the ID but reset edit mode if failed
             setIsEditing(false);
         } finally {
             setFetching(false);
@@ -118,10 +162,17 @@ const AddMovie = () => {
             const payload = {
                 ...formData,
                 Tags: formData.Tags.split(',').map(t => t.trim()).filter(Boolean),
-                TotalCollection: Number(formData.TotalCollection) || 0,
-                budzet: Number(formData.budzet) || 0,
+
+                // FIX: Send financial values as STRINGS to prevent JavaScript precision loss.
+                // JavaScript 'Number' type cannot handle very large BigInts (e.g. > 15 digits).
+                // The API will convert these strings to BigInt/Decimal128.
+                TotalCollection: formData.TotalCollection || "0",
+                budzet: formData.budzet || "0",
+                advanceBookings: formData.advanceBookings || "0",
+
+                // Popularity is usually a small float, so Number() is safe here.
                 Popularity: Number(formData.Popularity) || 0,
-                advanceBookings: Number(formData.advanceBookings) || 0,
+
                 // Parse strings to objects
                 LanguageWiseCollection: JSON.parse(formData.LanguageWiseCollection),
                 CountryWiseCollection: JSON.parse(formData.CountryWiseCollection),
@@ -141,7 +192,7 @@ const AddMovie = () => {
 
             const data = await res.json();
 
-            if (!res.ok) throw new Error(data.message || 'Failed to save movie');
+            if (!res.ok) throw new Error(data.message || data.error || 'Failed to save movie');
 
             setMessage({ type: 'success', text: `Movie "${formData.m_id}" ${isEditing ? 'updated' : 'added'} successfully!` });
 
@@ -161,17 +212,26 @@ const AddMovie = () => {
         <div className="space-y-2">
             <div className="flex justify-between items-center">
                 <label className="text-sm font-medium text-zinc-300">{label}</label>
-                <span className={`text-xs ${validateJSON(formData[name]) ? 'text-green-500' : 'text-red-500'}`}>
-                    {validateJSON(formData[name]) ? 'Valid JSON' : 'Invalid JSON'}
-                </span>
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => autoCleanJSON(name)}
+                        className="text-[10px] uppercase font-bold text-purple-400 hover:text-purple-300 transition-colors border border-purple-400/30 px-2 py-0.5 rounded"
+                    >
+                        Clean & Format
+                    </button>
+                    <span className={`text-xs font-medium ${validateJSON(formData[name]) ? 'text-green-500' : 'text-red-500'}`}>
+                        {validateJSON(formData[name]) ? '✓ Valid' : '✗ Invalid'}
+                    </span>
+                </div>
             </div>
             <textarea
                 name={name}
                 value={formData[name]}
                 onChange={handleChange}
                 placeholder={placeholder}
-                rows={6}
-                className="w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 px-4 font-mono text-sm focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-700"
+                rows={8}
+                className="w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 px-4 font-mono text-[13px] focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-700 leading-relaxed"
             />
         </div>
     );
@@ -183,11 +243,26 @@ const AddMovie = () => {
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl -z-10" />
 
             <div className="max-w-6xl mx-auto space-y-8">
+                <div className="flex items-center justify-between">
+                    <button
+                        onClick={() => router.push('/manage-data')}
+                        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group"
+                    >
+                        <ArrowLeft className="size-5 group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Dashboard</span>
+                    </button>
+
+                    <div className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-widest font-bold">
+                        <Database className="size-4 text-purple-500" />
+                        <span>Movie Engine v2.0</span>
+                    </div>
+                </div>
+
                 <div className="text-center space-y-2">
                     <h1 className="text-4xl font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                        {isEditing ? 'Edit Movie' : 'Add New Movie'}
+                        {isEditing ? `Editing: ${formData.m_id}` : 'Create New Entry'}
                     </h1>
-                    <p className="text-zinc-400">Insert details or load existing to update</p>
+                    <p className="text-zinc-400">{isEditing ? 'Modify analytics for this movie' : 'Insert a new movie into the global database'}</p>
                 </div>
 
                 <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
@@ -219,7 +294,8 @@ const AddMovie = () => {
                                                 value={formData.m_id}
                                                 onChange={handleChange}
                                                 placeholder="e.g. 550"
-                                                className="w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600"
+                                                disabled={isEditing}
+                                                className={`w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             />
                                         </div>
                                         <button
@@ -259,7 +335,7 @@ const AddMovie = () => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-zinc-300">Total Collection (₹)</label>
                                     <input
-                                        type="number"
+                                        type="text" // Changed to text to handle large numbers safely
                                         name="TotalCollection"
                                         value={formData.TotalCollection}
                                         onChange={handleChange}
@@ -270,7 +346,7 @@ const AddMovie = () => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-zinc-300">Budget (₹)</label>
                                     <input
-                                        type="number"
+                                        type="text" // Changed to text
                                         name="budzet"
                                         value={formData.budzet}
                                         onChange={handleChange}
@@ -281,7 +357,7 @@ const AddMovie = () => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-zinc-300">Advance Bookings (₹)</label>
                                     <input
-                                        type="number"
+                                        type="text" // Changed to text
                                         name="advanceBookings"
                                         value={formData.advanceBookings}
                                         onChange={handleChange}

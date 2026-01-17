@@ -2,41 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
-    ArrowLeft,
-    Star,
-    Calendar,
-    Clock,
-    DollarSign,
-    TrendingUp,
-    Users,
-    Play,
-    Globe,
-    Languages,
-    Ticket,
-    Coins,
-    Flame,
-    Zap,
-    Info,
-    TrendingDown
+    ArrowLeft, Star, Calendar, Clock, DollarSign, TrendingUp,
+    Users, Play, Languages, Ticket, Flame, Zap, Info, Globe
 } from "lucide-react";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
-    LineChart,
-    Line,
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+    ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
-
-import tmdbApi from '@/api/tmdbApi';
-import apiConfig from '@/api/apiConfig';
+import tmdbApi from '../../../../public/api/tmdbApi';
+import apiConfig from '../../../../public/api/apiConfig';
 
 const COLORS = ["#8b5cf6", "#a78bfa", "#c4b5fd", "#ddd6fe", "#ede9fe", "#f5f3ff"];
 
@@ -50,25 +26,26 @@ const Detail = () => {
         const getData = async () => {
             setLoading(true);
             try {
-                // 1. Fetch from MongoDB (Internal API)
-                let strapiData = null;
-                try {
-                    const response = await fetch(`/api/movies/${id}`);
-                    const json = await response.json();
-                    if (json.success && json.data) {
-                        strapiData = json.data;
+                // 1. Parallel Fetches
+                // A. Fetch Custom Data from your Backend (Analytics, Collections, Reviews)
+                // NOTE: You need to create a route at app/api/movies/[id]/route.js for this to work
+                const customRes = await fetch(`/api/movies/${id}`);
+                let customData = null;
+
+                if (customRes.ok) {
+                    const json = await customRes.json();
+                    if (json.success) {
+                        customData = json.data;
                     }
-                } catch (e) {
-                    console.log("MongoDB API not reachable, using dummy/TMDB", e);
                 }
 
-                // 2. Fetch All Data from TMDB (Secondary/Metadata)
-                const tmdbResponse = await tmdbApi.detail(category, id, { params: {} });
-                const creditsResponse = await tmdbApi.credits(category, id);
-                const videosResponse = await tmdbApi.getVideos(category, id);
-                const reviewsResponse = await tmdbApi.getReviews(category, id);
+                // B. Fetch Core Metadata from TMDB (Always needed)
+                const tmdbResponse = (await tmdbApi.detail(category, id, { params: {} })) || { id: id, title: 'Unknown Movie' };
+                const creditsResponse = (await tmdbApi.credits(category, id)) || { cast: [], crew: [] };
+                const videosResponse = (await tmdbApi.getVideos(category, id)) || { results: [] };
+                const reviewsResponse = (await tmdbApi.getReviews(category, id)) || { results: [] };
 
-                // Dummy Data Fallbacks (for when Strapi field is null/empty)
+                // 2. Dummy Data (Fallback)
                 const dummy = {
                     TotalCollection: 1250000000,
                     LanguageWiseCollection: [
@@ -101,6 +78,10 @@ const Detail = () => {
                     advanceBookings: 150000000
                 };
 
+                // 3. Merge Logic
+                // Use Custom Data if available, otherwise fallback to Dummy or TMDB
+                const isCustom = !!customData;
+
                 const customMovie = {
                     // Identity (Always TMDB)
                     id: tmdbResponse.id,
@@ -112,19 +93,47 @@ const Detail = () => {
                     rating: tmdbResponse.vote_average || 0,
                     about: tmdbResponse.overview,
 
-                    // Strapi Overrides or Dummy Fallbacks
-                    totalCollection: strapiData?.TotalCollection || dummy.TotalCollection,
-                    dayWiseCollection: strapiData?.DayWiseCollection || dummy.DayWiseCollection,
-                    languageWiseCollection: strapiData?.LanguageWiseCollection || dummy.LanguageWiseCollection,
-                    countryWiseCollection: strapiData?.CountryWiseCollection || dummy.CountryWiseCollection,
-                    tags: (strapiData?.Tags || dummy.Tags).split(',').map(tag => tag.trim()),
-                    popularity: strapiData?.Popularity || tmdbResponse.popularity || dummy.Popularity,
-                    budget: strapiData?.budzet || dummy.budzet,
-                    advanceBookings: strapiData?.advanceBookings || dummy.advanceBookings,
-                    occupancyData: strapiData?.OccupancyDayWise || dummy.OccupancyDayWise,
-                    inCinemas: strapiData?.inCinemas !== undefined ? strapiData.inCinemas : true,
+                    // --- MERGE START ---
 
-                    // Metadata (Always TMDB)
+                    // Analytics: STRICT PRIORITY to Custom DB, fallback to Dummy only if value is null/undefined
+                    totalCollection: Number(isCustom && customData.TotalCollection !== undefined ? customData.TotalCollection : dummy.TotalCollection),
+                    budget: Number(isCustom && customData.budzet !== undefined ? customData.budzet : dummy.budzet),
+                    advanceBookings: Number(isCustom && customData.advanceBookings !== undefined ? customData.advanceBookings : dummy.advanceBookings),
+
+                    // Charts Data: Use DB if it exists (even if empty array), else Dummy
+                    dayWiseCollection: (isCustom && customData.DayWiseCollection) ? customData.DayWiseCollection : dummy.DayWiseCollection,
+                    languageWiseCollection: (isCustom && customData.LanguageWiseCollection) ? customData.LanguageWiseCollection : dummy.LanguageWiseCollection,
+                    countryWiseCollection: (isCustom && customData.CountryWiseCollection) ? customData.CountryWiseCollection : dummy.CountryWiseCollection,
+                    occupancyData: (isCustom && customData.OccupancyDayWise) ? customData.OccupancyDayWise : dummy.OccupancyDayWise,
+
+                    // Metadata:
+                    tags: isCustom
+                        ? (Array.isArray(customData.Tags) ? customData.Tags : [])
+                        : dummy.Tags.split(',').map(tag => tag.trim()),
+
+                    popularity: Number(isCustom && customData.Popularity !== undefined ? customData.Popularity : (tmdbResponse.popularity || dummy.Popularity)),
+
+                    // Flags
+                    inCinemas: isCustom ? (customData.inCinemas ?? true) : true,
+                    isHOTYear: isCustom ? (customData.isHOTYear ?? false) : false,
+                    isUpcoming: isCustom ? (customData.isUpcoming ?? false) : false,
+
+                    // Reviews:
+                    reviews: isCustom && customData.Reviews && customData.Reviews.length > 0
+                        ? customData.Reviews.map(r => ({
+                            user: r.user || 'Anonymous',
+                            date: r.date || new Date().toISOString(),
+                            rating: r.rating || 5,
+                            comment: r.comment || ''
+                        }))
+                        : (reviewsResponse.results ? reviewsResponse.results.slice(0, 5).map(review => ({
+                            user: review.author || review.author_details?.username || 'Anonymous',
+                            date: review.created_at,
+                            rating: review.author_details?.rating || (tmdbResponse.vote_average || 7),
+                            comment: review.content.length > 300 ? review.content.substring(0, 300) + '...' : review.content
+                        })) : []),
+
+                    // Cast, Trailer, Director (Always TMDB)
                     genre: tmdbResponse.genres ? tmdbResponse.genres.map(g => g.name) : [],
                     duration: tmdbResponse.runtime || (tmdbResponse.episode_run_time ? tmdbResponse.episode_run_time[0] : 0),
                     director: creditsResponse.crew?.find(f => f.job === 'Director')?.name || 'Unknown',
@@ -135,13 +144,10 @@ const Detail = () => {
                     })) : [],
                     trailer: videosResponse.results?.length > 0 ? `https://www.youtube.com/watch?v=${videosResponse.results[0].key}` : null,
 
-                    // Reviews (Strapi first, then TMDB)
-                    reviews: strapiData?.Reviews || (reviewsResponse.results ? reviewsResponse.results.slice(0, 5).map(review => ({
-                        user: review.author || review.author_details?.username || 'Anonymous',
-                        date: review.created_at,
-                        rating: review.author_details?.rating || (tmdbResponse.vote_average || 7),
-                        comment: review.content.length > 300 ? review.content.substring(0, 300) + '...' : review.content
-                    })) : [])
+                    // Helper for UI
+                    occupancy: isCustom && customData.OccupancyDayWise && customData.OccupancyDayWise.length > 0
+                        ? customData.OccupancyDayWise[0]?.occupancy + "%"
+                        : (isCustom ? "N/A" : dummy.OccupancyDayWise[0].occupancy + "%")
                 };
 
                 setMovie(customMovie);
@@ -186,18 +192,17 @@ const Detail = () => {
         <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white font-sans">
             {/* Hero Section */}
             <div className="relative h-[60vh] overflow-hidden">
-                {/* Background Image */}
                 <div className="absolute inset-0">
-                    <img
+                    <Image
                         src={movie.backdrop || movie.poster}
-                        alt={movie.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.style.display = 'none' }}
+                        alt={movie.title || "movie backdrop"}
+                        fill
+                        className="object-cover"
+                        priority
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/80 to-zinc-950" />
+                    <div className="absolute inset-0 bg-linear-to-b from-zinc-950/70 via-zinc-950/80 to-zinc-950" />
                 </div>
 
-                {/* Back Button */}
                 <button
                     onClick={() => router.back()}
                     className="absolute top-24 left-6 flex items-center gap-2 px-4 py-2 bg-zinc-900/80 backdrop-blur-sm rounded-lg hover:bg-zinc-800 transition-colors z-20"
@@ -206,29 +211,23 @@ const Detail = () => {
                     <span>Back to Collection</span>
                 </button>
 
-                {/* Hero Content */}
                 <div className="relative h-full max-w-7xl mx-auto px-6 flex items-end pb-12 z-10">
                     <div className="flex gap-8 items-end w-full">
-                        {/* Poster */}
-                        <div className="hidden md:block">
-                            <img
+                        <div className="hidden md:block relative w-64 h-96">
+                            <Image
                                 src={movie.poster}
-                                alt={movie.title}
-                                className="w-64 rounded-lg shadow-2xl"
-                                onError={(e) => { e.target.src = 'https://via.placeholder.com/300x450?text=No+Image' }}
+                                alt={movie.title || "movie poster"}
+                                fill
+                                className="rounded-lg shadow-2xl object-cover"
                             />
                         </div>
 
-                        {/* Title & Info */}
                         <div className="flex-1 space-y-4">
                             <div className="space-y-2">
                                 <h1 className="text-4xl md:text-5xl font-bold">{movie.title}</h1>
                                 <div className="flex flex-wrap gap-2">
                                     {movie.genre && movie.genre.map((genre, index) => (
-                                        <span
-                                            key={index}
-                                            className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full"
-                                        >
+                                        <span key={index} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full">
                                             {typeof genre === 'string' ? genre : genre.name}
                                         </span>
                                     ))}
@@ -266,12 +265,6 @@ const Detail = () => {
                                     <TrendingUp className="size-5" />
                                     <span>Pop: {(movie.popularity || 0).toFixed(0)}</span>
                                 </div>
-                                {movie.occupancy !== "N/A" && (
-                                    <div className="flex items-center gap-2">
-                                        <Users className="size-5" />
-                                        <span>Occupancy: {movie.occupancy}</span>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="flex flex-wrap items-center gap-8">
@@ -312,7 +305,6 @@ const Detail = () => {
 
             {/* Details Section */}
             <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
-                {/* About & Tags */}
                 <div className="grid md:grid-cols-3 gap-8">
                     <div className="md:col-span-2 space-y-4">
                         <h2 className="text-2xl font-bold">About</h2>
@@ -322,10 +314,7 @@ const Detail = () => {
                         <h3 className="text-xl font-bold">Highlights</h3>
                         <div className="flex flex-wrap gap-2">
                             {movie.tags && movie.tags.length > 0 ? movie.tags.map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="px-3 py-1 bg-zinc-800 text-purple-300 rounded-lg text-sm border border-purple-500/20"
-                                >
+                                <span key={index} className="px-3 py-1 bg-zinc-800 text-purple-300 rounded-lg text-sm border border-purple-500/20">
                                     {tag}
                                 </span>
                             )) : <span className="text-zinc-500">No tags available</span>}
@@ -333,7 +322,6 @@ const Detail = () => {
                     </div>
                 </div>
 
-                {/* Cast & Director */}
                 <div className="space-y-6">
                     <div>
                         <h2 className="text-2xl font-bold mb-4">Director</h2>
@@ -346,11 +334,8 @@ const Detail = () => {
                         <h2 className="text-2xl font-bold mb-4">Cast</h2>
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                             {movie.cast && movie.cast.map((actor, index) => (
-                                <div
-                                    key={index}
-                                    className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 hover:border-purple-500/40 transition-colors flex items-center gap-3"
-                                >
-                                    {actor.image && <img src={actor.image} alt={actor.name} className="w-12 h-12 rounded-full object-cover" />}
+                                <div key={index} className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 hover:border-purple-500/40 transition-colors flex items-center gap-3">
+                                    {actor.image && <Image src={actor.image} alt={actor.name} width={48} height={48} className="rounded-full object-cover" />}
                                     <div>
                                         <p className="text-purple-300 font-medium">{actor.name}</p>
                                         <p className="text-sm text-zinc-500 mt-1">{actor.role}</p>
@@ -372,33 +357,10 @@ const Detail = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={movie.dayWiseCollection}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                                    <XAxis
-                                        dataKey="day"
-                                        stroke="#a1a1aa"
-                                        tick={{ fill: '#a1a1aa' }}
-                                    />
-                                    <YAxis
-                                        stroke="#a1a1aa"
-                                        tickFormatter={(value) => formatCompactCurrency(value)}
-                                        tick={{ fill: '#a1a1aa' }}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "#18181b",
-                                            border: "1px solid #3f3f46",
-                                            borderRadius: "8px",
-                                            color: "#fff"
-                                        }}
-                                        formatter={(value) => [formatCurrency(value), "Collection"]}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="collection"
-                                        stroke="#8b5cf6"
-                                        strokeWidth={3}
-                                        dot={{ fill: "#8b5cf6", r: 4 }}
-                                        activeDot={{ r: 6 }}
-                                    />
+                                    <XAxis dataKey="day" stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
+                                    <YAxis stroke="#a1a1aa" tickFormatter={(value) => formatCompactCurrency(value)} tick={{ fill: '#a1a1aa' }} />
+                                    <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "#fff" }} formatter={(value) => [formatCurrency(value), "Collection"]} />
+                                    <Line type="monotone" dataKey="collection" stroke="#8b5cf6" strokeWidth={3} dot={{ fill: "#8b5cf6", r: 4 }} activeDot={{ r: 6 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -420,9 +382,7 @@ const Detail = () => {
                                             cx="50%"
                                             cy="50%"
                                             labelLine={false}
-                                            label={({ language, percent }) =>
-                                                `${language}: ${(percent * 100).toFixed(0)}%`
-                                            }
+                                            label={({ language, percent }) => `${language}: ${(percent * 100).toFixed(0)}%`}
                                             outerRadius={100}
                                             fill="#8884d8"
                                             dataKey="collection"
@@ -432,15 +392,7 @@ const Detail = () => {
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: "#18181b",
-                                                border: "1px solid #3f3f46",
-                                                borderRadius: "8px",
-                                                color: "#fff"
-                                            }}
-                                            formatter={(value) => formatCurrency(value)}
-                                        />
+                                        <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "#fff" }} formatter={(value) => formatCurrency(value)} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
@@ -457,18 +409,8 @@ const Detail = () => {
                                     <BarChart data={movie.occupancyData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                                         <XAxis dataKey="day" stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
-                                        <YAxis
-                                            stroke="#a1a1aa"
-                                            tick={{ fill: '#a1a1aa' }}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: "#18181b",
-                                                border: "1px solid #3f3f46",
-                                                borderRadius: "8px",
-                                                color: "#fff"
-                                            }}
-                                        />
+                                        <YAxis stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
+                                        <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "#fff" }} />
                                         <Bar dataKey="occupancy" fill="#f97316" radius={[8, 8, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
@@ -487,20 +429,8 @@ const Detail = () => {
                                 <BarChart data={movie.countryWiseCollection}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                                     <XAxis dataKey="country" stroke="#a1a1aa" tick={{ fill: '#a1a1aa' }} />
-                                    <YAxis
-                                        stroke="#a1a1aa"
-                                        tickFormatter={(value) => formatCompactCurrency(value)}
-                                        tick={{ fill: '#a1a1aa' }}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "#18181b",
-                                            border: "1px solid #3f3f46",
-                                            borderRadius: "8px",
-                                            color: "#fff"
-                                        }}
-                                        formatter={(value) => [formatCurrency(value), "Collection"]}
-                                    />
+                                    <YAxis stroke="#a1a1aa" tickFormatter={(value) => formatCompactCurrency(value)} tick={{ fill: '#a1a1aa' }} />
+                                    <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "#fff" }} formatter={(value) => [formatCurrency(value), "Collection"]} />
                                     <Bar dataKey="collection" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -514,10 +444,7 @@ const Detail = () => {
                         <h2 className="text-2xl font-bold">User Reviews</h2>
                         <div className="space-y-4">
                             {movie.reviews.map((review, index) => (
-                                <div
-                                    key={index}
-                                    className="p-6 bg-zinc-900 rounded-lg border border-zinc-800 hover:border-purple-500/40 transition-colors"
-                                >
+                                <div key={index} className="p-6 bg-zinc-900 rounded-lg border border-zinc-800 hover:border-purple-500/40 transition-colors">
                                     <div className="flex items-start justify-between mb-3">
                                         <div>
                                             <p className="text-purple-300 font-semibold">{review.user}</p>
@@ -538,7 +465,7 @@ const Detail = () => {
                 {/* Additional Info */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">
-                        <p className="text-sm text-zinc-500 mb-1 flex items-center gap-2"><Coins className="size-4" /> Budget</p>
+                        <p className="text-sm text-zinc-500 mb-1 flex items-center gap-2"><DollarSign className="size-4" /> Budget</p>
                         <p className="text-purple-300 font-semibold">{formatCurrency(movie.budget)}</p>
                     </div>
                     <div className="p-6 bg-zinc-900 rounded-lg border border-purple-500/20">

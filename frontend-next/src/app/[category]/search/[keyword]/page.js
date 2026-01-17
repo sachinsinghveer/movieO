@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 
 import PageHeader from '@/components/page-header/PageHeader';
 import MovieGrid from '@/components/movie-grid/MovieGrid';
-import { category as cate } from '@/api/tmdbApi';
+import { category as cate } from '../../../../../public/api/tmdbApi';
 
 const Search = () => {
     const { category, keyword } = useParams();

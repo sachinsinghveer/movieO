@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
-import tmdbApi from '@/api/tmdbApi';
-import apiConfig from '@/api/apiConfig';
+import tmdbApi from '../../../public/api/tmdbApi';
+import apiConfig from '../../../public/api/apiConfig';
 
 const CastList = props => {
 

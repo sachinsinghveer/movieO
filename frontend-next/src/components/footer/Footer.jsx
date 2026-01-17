@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const bg = '/assets/footer-bg.jpg';
 const logo = '/assets/tmovie.png';
@@ -10,7 +11,7 @@ const Footer = () => {
             <div className="max-w-[1000px] w-full mx-auto px-8">
                 <div className="flex items-center justify-center mb-12">
                     <div className="flex items-center gap-2 font-semibold text-[2.5rem]">
-                        <img src={logo} alt="" className="w-[50px] mr-2" />
+                        <Image src={logo} alt="MovieApp" width={50} height={50} className="mr-2" />
                         <Link href="/">MovieApp</Link>
                     </div>
                 </div>

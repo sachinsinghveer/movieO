@@ -1,6 +1,5 @@
 import axios from 'axios';
 import queryString from 'query-string';
-
 import apiConfig from './apiConfig';
 
 const axiosClient = axios.create({
@@ -22,7 +21,6 @@ axiosClient.interceptors.response.use((response) => {
     if (response && response.data) {
         return response.data;
     }
-
     return response;
 }, (error) => {
     throw error;

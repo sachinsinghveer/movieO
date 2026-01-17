@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 
-import tmdbApi from '@/api/tmdbApi';
+import tmdbApi from '../../../public/api/tmdbApi';
 
 const VideoList = props => {
 

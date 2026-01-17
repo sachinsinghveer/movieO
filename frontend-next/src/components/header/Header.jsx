@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 const logo = '/assets/tmovie.png';
 
@@ -13,12 +14,16 @@ const headerNav = [
         path: '/'
     },
     {
-        display: 'Movies',
+        display: 'Movies Collection',
         path: '/movie'
     },
     {
-        display: 'TV Series',
+        display: 'TV Series Collection',
         path: '/tv'
+    },
+    {
+        display: 'Admin',
+        path: '/manage-data'
     }
 ];
 
@@ -56,7 +61,7 @@ const Header = () => {
         <div ref={headerRef} className="fixed top-0 left-0 w-full z-[100] transition-all duration-300 ease-in-out h-[8rem] bg-transparent text-text" >
             <div className="flex items-center justify-between h-full container">
                 <div className="flex items-center gap-2 font-semibold text-[2.5rem]">
-                    <img src={logo} alt="" className="w-[50px] mr-2" />
+                    <Image src={logo} alt="MovieApp" width={50} height={50} className="mr-2" />
                     <Link href="/">MovieApp</Link>
                 </div>
                 <ul className="flex items-center gap-8">
