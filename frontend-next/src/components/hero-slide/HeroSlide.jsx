@@ -148,24 +148,38 @@ const HeroSlideItem = props => {
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0f0f0f] to-transparent"></div>
 
-            <div className="flex items-center relative container h-full">
+            <div className="flex items-center relative container min-h-screen pt-20 pb-32">
                 {/* Content Left */}
-                <div className="w-full md:w-[60%] lg:w-[50%] px-4 md:px-0 flex flex-col justify-center items-start text-white space-y-6 pt-12">
+                <div className=" w-full md:w-[60%] lg:w-[50%] px-4 md:px-0 flex flex-col justify-center items-start text-white space-y-6 pt-12">
 
                     {/* Title */}
-                    <h2 className={`text-4xl md:text-6xl font-extrabold italic uppercase leading-[0.9] tracking-tighter opacity-0 translate-y-10 transition-all duration-700 ease-out ${props.className.includes('active') ? '!opacity-100 !translate-y-0 delay-300' : ''}`}>
+                    <h2 className={`text-4xl md:text-5xl font-extrabold  uppercase leading-[0.9] tracking-tighter opacity-0 translate-y-10 transition-all duration-700 ease-out ${props.className.includes('active') ? '!opacity-100 !translate-y-0 delay-300' : ''}`}>
                         {item.title}
                     </h2>
 
                     {/* Collection Badge */}
                     <div className={`opacity-0 translate-y-10 transition-all duration-700 ease-out ${props.className.includes('active') ? '!opacity-100 !translate-y-0 delay-500' : ''}`}>
                         <div className="inline-flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
-                            <div className="bg-[#0036A7] px-4 py-2 text-sm font-bold uppercase tracking-wider text-white">
-                                Total Collection
+                            <div className="relative inline-flex items-center gap-4 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-xl">
+
+                                {/* Soft inner highlight */}
+                                <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/20 to-transparent opacity-40" />
+
+                                {/* Label */}
+                                <span className="text-[11px] font-medium uppercase tracking-[0.25em] text-white/70">
+                                    Total Collection
+                                </span>
+
+                                {/* Divider */}
+                                <span className="h-5 w-px bg-white/25" />
+
+                                {/* Amount */}
+                                <span className="text-lg font-semibold tracking-tight text-white">
+                                    {item.TotalCollection ? `₹ ${item.TotalCollection}` : "N/A"}
+                                </span>
+
                             </div>
-                            <div className="px-4 py-2 text-lg font-black text-white">
-                                {item.TotalCollection ? `₹ ${item.TotalCollection}` : 'N/A'}
-                            </div>
+
                         </div>
                         <div className="mt-2 text-sm text-gray-300 font-medium">
                             {item.isHOTYear ? '🔥 Highest Grosser of the Year' : 'World Wide Box Office'}
@@ -188,27 +202,67 @@ const HeroSlideItem = props => {
                     </div>
 
                     {/* Description */}
-                    <p className={`text-gray-300 text-sm md:text-lg line-clamp-3 max-w-xl opacity-0 translate-y-10 transition-all duration-700 ease-out ${props.className.includes('active') ? '!opacity-100 !translate-y-0 delay-[800ms]' : ''}`}>
+                    <p className={`text-gray-300 text-sm md:text-md line-clamp-3 max-w-xl opacity-0 translate-y-10 transition-all duration-700 ease-out ${props.className.includes('active') ? '!opacity-100 !translate-y-0 delay-[800ms]' : ''}`}>
                         {item.overview}
                     </p>
 
                     {/* Buttons */}
-                    <div className={`flex flex-wrap gap-4 pt-4 opacity-0 translate-y-10 transition-all duration-700 ease-out ${props.className.includes('active') ? '!opacity-100 !translate-y-0 delay-[900ms]' : ''}`}>
-                        <button
-                            onClick={() => router.push('/movies/' + (item.slug || item.m_id || item.id))}
-                            className="bg-gradient-to-r from-[#007AFF] to-[#E50914] hover:scale-105 transition-transform duration-300 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-blue-500/30 flex items-center gap-2"
-                        >
-                            <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                            Watch Now
-                        </button>
+                   <div
+  className={`flex flex-wrap gap-4 pt-4 opacity-0 translate-y-10 transition-all duration-700 ease-out
+  ${props.className.includes("active")
+    ? "!opacity-100 !translate-y-0 delay-[900ms]"
+    : ""}`}
+>
 
-                        <button
-                            onClick={setModalActive}
-                            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white font-bold py-3 px-8 rounded-full transition-all duration-300"
-                        >
-                            Watch Trailer
-                        </button>
-                    </div>
+  {/* Primary CTA */}
+  <button
+    onClick={() =>
+      router.push("/movies/" + (item.slug || item.m_id || item.id))
+    }
+    className="
+      relative inline-flex items-center gap-2
+      rounded-xl px-7 py-3
+      bg-white/15 backdrop-blur-xl
+      border border-white/30
+      text-white font-semibold
+      transition-all duration-300
+      hover:bg-white/25 hover:border-white/40
+      hover:-translate-y-[1px]
+      active:translate-y-0
+    "
+  >
+    {/* Inner light */}
+    <span className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/30 to-transparent opacity-40" />
+
+    <svg className="relative h-5 w-5 fill-current" viewBox="0 0 24 24">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+
+    <span className="relative text-sm tracking-wide">
+      Watch Now
+    </span>
+  </button>
+
+  {/* Secondary CTA */}
+  <button
+    onClick={setModalActive}
+    className="
+      rounded-xl px-7 py-3
+      border border-white/20
+      bg-white/5 backdrop-blur-xl
+      text-white/80 font-medium
+      transition-all duration-300
+      hover:bg-white/10 hover:text-white
+      hover:border-white/30
+    "
+  >
+    <span className="text-sm tracking-wide">
+      Watch Trailer
+    </span>
+  </button>
+
+</div>
+
                 </div>
             </div>
         </div>
