@@ -2,7 +2,9 @@ import axiosClient from "./axiosClient";
 
 export const category = {
     movie: 'movie',
-    tv: 'tv'
+    movies: 'movie',
+    tv: 'tv',
+    series: 'tv'
 }
 
 export const movieType = {
@@ -17,8 +19,8 @@ const tmdbApi = {
         try {
             return await axiosClient.get(url, params);
         } catch (err) {
-            if (err.response && err.response.status === 404) return { results: [] };
-            throw err;
+            console.warn(`TMDB API Error in getMoviesList:`, err.message);
+            return { results: [] };
         }
     },
     // Helper to resolve ID if it's an IMDb ID (starts with tt)
@@ -47,7 +49,7 @@ const tmdbApi = {
                 // We'll handle that in the detail/getVideos calls.
                 return id;
             } catch (error) {
-                console.error(`Error resolving IMDb ID ${id}:`, error.message);
+                console.warn(`Error resolving IMDb ID ${id}:`, error.message);
                 return id;
             }
         }
@@ -60,8 +62,8 @@ const tmdbApi = {
         try {
             return await axiosClient.get(url, { params: {} });
         } catch (err) {
-            if (err.response && err.response.status === 404) return { results: [] };
-            throw err;
+            console.warn(`TMDB API Error in getVideos:`, err.message);
+            return { results: [] };
         }
     },
     search: async (cate, params) => {
@@ -69,8 +71,8 @@ const tmdbApi = {
         try {
             return await axiosClient.get(url, params);
         } catch (err) {
-            if (err.response && err.response.status === 404) return { results: [] };
-            throw err;
+            console.warn(`TMDB API Error in search:`, err.message);
+            return { results: [] };
         }
     },
     detail: async (cate, id, params) => {
@@ -84,8 +86,8 @@ const tmdbApi = {
         try {
             return await axiosClient.get(url, params);
         } catch (err) {
-            if (err.response && err.response.status === 404) return null;
-            throw err;
+            console.warn(`TMDB API Error in detail:`, err.message);
+            return null;
         }
     },
     credits: async (cate, id) => {
@@ -95,8 +97,8 @@ const tmdbApi = {
         try {
             return await axiosClient.get(url, { params: {} });
         } catch (err) {
-            if (err.response && err.response.status === 404) return { cast: [], crew: [] };
-            throw err;
+            console.warn(`TMDB API Error in credits:`, err.message);
+            return { cast: [], crew: [] };
         }
     },
     getReviews: async (cate, id) => {
@@ -106,8 +108,8 @@ const tmdbApi = {
         try {
             return await axiosClient.get(url, { params: {} });
         } catch (err) {
-            if (err.response && err.response.status === 404) return { results: [] };
-            throw err;
+            console.warn(`TMDB API Error in getReviews:`, err.message);
+            return { results: [] };
         }
     },
 }

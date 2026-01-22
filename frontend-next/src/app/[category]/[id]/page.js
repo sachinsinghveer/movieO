@@ -26,24 +26,61 @@ const Detail = () => {
         const getData = async () => {
             setLoading(true);
             try {
-                // 1. Parallel Fetches
-                // A. Fetch Custom Data from your Backend (Analytics, Collections, Reviews)
-                // NOTE: You need to create a route at app/api/movies/[id]/route.js for this to work
+                // 1. Fetch Custom Data from Backend
                 const customRes = await fetch(`/api/movies/${id}`);
                 let customData = null;
-
                 if (customRes.ok) {
                     const json = await customRes.json();
-                    if (json.success) {
-                        customData = json.data;
+                    if (json.success) customData = json.data;
+                }
+
+                // 2. Resolve TMDB ID
+                // 2. Resolve TMDB ID
+                const decodedId = decodeURIComponent(id);
+                let tmdbId = decodedId;
+                let fallbackTitle = decodedId.replace(/-/g, ' ').replace(/box office collection/gi, '').trim();
+
+                // Capitalize fallback title for display
+                fallbackTitle = fallbackTitle.replace(/\b\w/g, l => l.toUpperCase());
+
+                // Case A: Custom DB has a mapped TMDB ID
+                if (customData?.tmdbId || (customData?.id && !isNaN(customData.id))) {
+                    tmdbId = customData.tmdbId || customData.id;
+                }
+                // Case B: URL is a slug (e.g. "border-2-collection"), not a valid ID
+                else if (isNaN(decodedId) && !decodedId.startsWith('tt')) {
+                    // Try to search TMDB with the cleaned slug
+                    const query = fallbackTitle;
+                    console.log("Searching TMDB for:", query);
+                    const searchRes = await tmdbApi.search(category, { query });
+
+                    if (searchRes.results && searchRes.results.length > 0) {
+                        tmdbId = searchRes.results[0].id;
+                        console.log("Found TMDB ID:", tmdbId);
+                    } else {
+                        console.warn("Could not resolve slug to TMDB ID. Using fallback data for:", query);
+                        tmdbId = null;
                     }
                 }
 
-                // B. Fetch Core Metadata from TMDB (Always needed)
-                const tmdbResponse = (await tmdbApi.detail(category, id, { params: {} })) || { id: id, title: 'Unknown Movie' };
-                const creditsResponse = (await tmdbApi.credits(category, id)) || { cast: [], crew: [] };
-                const videosResponse = (await tmdbApi.getVideos(category, id)) || { results: [] };
-                const reviewsResponse = (await tmdbApi.getReviews(category, id)) || { results: [] };
+                // 3. Fetch TMDB Data (only if we have a valid-looking ID)
+                let tmdbResponse = { id: id, title: 'Unknown Movie' };
+                let creditsResponse = { cast: [], crew: [] };
+                let videosResponse = { results: [] };
+                let reviewsResponse = { results: [] };
+
+                if (tmdbId) {
+                    const [res, credits, videos, reviews] = await Promise.all([
+                        tmdbApi.detail(category, tmdbId, { params: {} }),
+                        tmdbApi.credits(category, tmdbId),
+                        tmdbApi.getVideos(category, tmdbId),
+                        tmdbApi.getReviews(category, tmdbId)
+                    ]);
+                    if (res) tmdbResponse = res;
+                    if (credits) creditsResponse = credits;
+                    if (videos) videosResponse = videos;
+                    if (reviews) reviewsResponse = reviews;
+                }
 
                 // 2. Dummy Data (Fallback)
                 const dummy = {
@@ -82,16 +119,31 @@ const Detail = () => {
                 // Use Custom Data if available, otherwise fallback to Dummy or TMDB
                 const isCustom = !!customData;
 
+                const tmdbValid = tmdbResponse.title !== 'Unknown Movie';
+
+                // Helpers for safe image extraction
+                const getPoster = () => {
+                    if (tmdbResponse.poster_path) return apiConfig.originalImage(tmdbResponse.poster_path);
+                    if (customData?.poster) return customData.poster;
+                    return "https://placehold.co/600x900/18181b/ffffff?text=No+Poster";
+                };
+                const getBackdrop = () => {
+                    if (tmdbResponse.backdrop_path) return apiConfig.originalImage(tmdbResponse.backdrop_path);
+                    if (customData?.backdrop) return customData.backdrop;
+                    return "https://placehold.co/1920x1080/18181b/ffffff?text=No+Backdrop";
+                };
+
                 const customMovie = {
-                    // Identity (Always TMDB)
+                    // Identity: Try TMDB -> Custom DB -> Fallback
                     id: tmdbResponse.id,
-                    title: tmdbResponse.title || tmdbResponse.name,
-                    poster: apiConfig.originalImage(tmdbResponse.poster_path || tmdbResponse.backdrop_path),
-                    backdrop: apiConfig.originalImage(tmdbResponse.backdrop_path || tmdbResponse.poster_path),
-                    releaseDate: tmdbResponse.release_date || tmdbResponse.first_air_date,
-                    year: (tmdbResponse.release_date || tmdbResponse.first_air_date || "").split('-')[0],
-                    rating: tmdbResponse.vote_average || 0,
-                    about: tmdbResponse.overview,
+                    title: (tmdbValid ? (tmdbResponse.title || tmdbResponse.name) : (customData?.title || fallbackTitle)) || 'Unknown Movie',
+                    poster: getPoster(),
+                    backdrop: getBackdrop(),
+
+                    releaseDate: (tmdbResponse.release_date || tmdbResponse.first_air_date) || customData?.releaseDate,
+                    year: ((tmdbResponse.release_date || tmdbResponse.first_air_date || customData?.releaseDate || "").split('-')[0]) || "N/A",
+                    rating: tmdbResponse.vote_average || customData?.rating || 0,
+                    about: tmdbResponse.overview || customData?.overview || "No description available.",
 
                     // --- MERGE START ---
 
@@ -133,14 +185,14 @@ const Detail = () => {
                             comment: review.content.length > 300 ? review.content.substring(0, 300) + '...' : review.content
                         })) : []),
 
-                    // Cast, Trailer, Director (Always TMDB)
-                    genre: tmdbResponse.genres ? tmdbResponse.genres.map(g => g.name) : [],
-                    duration: tmdbResponse.runtime || (tmdbResponse.episode_run_time ? tmdbResponse.episode_run_time[0] : 0),
-                    director: creditsResponse.crew?.find(f => f.job === 'Director')?.name || 'Unknown',
+                    // Cast, Trailer, Director (Check TMDB, fallback to custom)
+                    genre: tmdbResponse.genres ? tmdbResponse.genres.map(g => g.name) : (customData?.genre || []),
+                    duration: tmdbResponse.runtime || (tmdbResponse.episode_run_time ? tmdbResponse.episode_run_time[0] : (customData?.duration || 0)),
+                    director: creditsResponse.crew?.find(f => f.job === 'Director')?.name || customData?.director || 'Unknown',
                     cast: creditsResponse.cast ? creditsResponse.cast.slice(0, 5).map(c => ({
                         name: c.name,
                         role: c.character,
-                        image: c.profile_path ? apiConfig.w500Image(c.profile_path) : null
+                        image: c.profile_path ? apiConfig.w500Image(c.profile_path) : "https://placehold.co/200x200/3f3f46/ffffff?text=Actor"
                     })) : [],
                     trailer: videosResponse.results?.length > 0 ? `https://www.youtube.com/watch?v=${videosResponse.results[0].key}` : null,
 
