@@ -1,44 +1,93 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from "next/link"
+import Image from "next/image"
 
-const bg = '/assets/footer-bg.jpg';
-const logo = '/assets/tmovie.png';
+const logo = "/assets/logo.svg"
 
-const Footer = () => {
-    return (
-        <div className="relative pt-24 pb-16 bg-top bg-cover bg-no-repeat text-white" style={{ backgroundImage: `url(${bg})` }}>
+export default function Footer() {
+  return (
+    <footer className="relative border-t border-white/10 bg-black/70 backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-6 py-16">
+        <div className="grid gap-12 md:grid-cols-12">
 
-            <div className="max-w-[1000px] w-full mx-auto px-8">
-                <div className="flex items-center justify-center mb-12">
-                    <div className="flex items-center gap-2 font-semibold text-[2.5rem]">
-                        <Image src={logo} alt="MovieApp" width={50} height={50} className="mr-2" />
-                        <Link href="/">MovieApp</Link>
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                    <div className="flex flex-col items-start text-2xl font-semibold mt-4">
-                        <Link href="/" className="hover:text-main mt-4">Home</Link>
-                        <Link href="/" className="hover:text-main mt-4">Contact us</Link>
-                        <Link href="/" className="hover:text-main mt-4">Term of services</Link>
-                        <Link href="/" className="hover:text-main mt-4">About us</Link>
-                    </div>
-                    <div className="flex flex-col items-start text-2xl font-semibold mt-4">
-                        <Link href="/" className="hover:text-main mt-4">Live</Link>
-                        <Link href="/" className="hover:text-main mt-4">FAQ</Link>
-                        <Link href="/" className="hover:text-main mt-4">Premium</Link>
-                        <Link href="/" className="hover:text-main mt-4">Pravacy policy</Link>
-                    </div>
-                    <div className="flex flex-col items-start text-2xl font-semibold mt-4">
-                        <Link href="/" className="hover:text-main mt-4">You must watch</Link>
-                        <Link href="/" className="hover:text-main mt-4">Recent release</Link>
-                        <Link href="/" className="hover:text-main mt-4">Top IMDB</Link>
-                    </div>
-                </div>
-
+          {/* BRAND */}
+          <div className="md:col-span-4">
+            <div className="flex items-center gap-3">
+              <Image
+                src={logo}
+                alt="CineStats"
+                width={40}
+                height={40}
+                priority
+              />
+              <span className="text-2xl font-semibold tracking-tight text-white">
+                CineStats
+              </span>
             </div>
+
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-400">
+              CineStats helps you explore movies, ratings, trends, and insights
+              with a clean cinematic experience built for movie lovers.
+            </p>
+          </div>
+
+          {/* LINKS */}
+          <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
+            <FooterColumn title="Product">
+              <FooterLink href="/">Home</FooterLink>
+              <FooterLink href="/">Live</FooterLink>
+              <FooterLink href="/">Premium</FooterLink>
+            </FooterColumn>
+
+            <FooterColumn title="Company">
+              <FooterLink href="/">About</FooterLink>
+              <FooterLink href="/">Contact</FooterLink>
+              <FooterLink href="/">FAQ</FooterLink>
+            </FooterColumn>
+
+            <FooterColumn title="Legal">
+              <FooterLink href="/">Terms</FooterLink>
+              <FooterLink href="/">Privacy</FooterLink>
+              <FooterLink href="/">Licenses</FooterLink>
+            </FooterColumn>
+          </div>
         </div>
-    );
+
+        {/* BOTTOM BAR */}
+        <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-zinc-500">
+            © {new Date().getFullYear()} CineStats. All rights reserved.
+          </p>
+
+          <p className="text-xs text-zinc-500">
+            Crafted with precision for cinema lovers 🎬
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
 }
 
-export default Footer;
+
+function FooterColumn({ title, children }) {
+  return (
+    <div>
+      <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+        {title}
+      </h4>
+      <div className="flex flex-col gap-3">{children}</div>
+    </div>
+  )
+}
+
+function FooterLink({ href, children }) {
+  return (
+    <Link
+      href={href}
+      className="text-sm text-zinc-400 transition hover:text-white"
+    >
+      {children}
+    </Link>
+  )
+}
+
 

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 
-const logo = '/assets/tmovie.png';
+const logo = '/assets/logo.svg';
 
 const headerNav = [
     {
@@ -62,7 +62,7 @@ const Header = () => {
             <div className="flex items-center justify-between h-full container">
                 <div className="flex items-center gap-2 font-semibold text-[2.5rem]">
                     <Image src={logo} alt="MovieApp" width={50} height={50} className="mr-2" />
-                    <Link href="/">MovieApp</Link>
+                    <Link href="/">CineStats</Link>
                 </div>
                 <ul className="flex items-center gap-8">
                     {
