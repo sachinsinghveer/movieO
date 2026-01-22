@@ -29,6 +29,8 @@ const AddMovie = () => {
     // Form State
     const [formData, setFormData] = useState({
         m_id: '',
+        title: '',
+        slug: '',
         TotalCollection: '',
         budzet: '',
         Popularity: '',
@@ -55,10 +57,23 @@ const AddMovie = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+
+        setFormData(prev => {
+            const newState = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+
+            // Auto-generate slug when title changes
+            if (name === 'title' && !isEditing) {
+                const slugified = value.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/(^-|-$)/g, '');
+                newState.slug = slugified ? `${slugified}-box-office-collection` : '';
+            }
+
+            return newState;
+        });
     };
 
     const autoCleanJSON = (name) => {
@@ -111,6 +126,8 @@ const AddMovie = () => {
 
             setFormData({
                 m_id: data.m_id,
+                title: data.title || '',
+                slug: data.slug || '',
                 TotalCollection: data.TotalCollection || '',
                 budzet: data.budzet || '',
                 Popularity: data.Popularity || '',
@@ -278,49 +295,96 @@ const AddMovie = () => {
 
                         {/* Section: Identity */}
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-purple-300 flex items-center gap-2 border-b border-white/5 pb-2">
-                                <Film className="size-5" /> Identity
-                            </h2>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-300">TMDB ID <span className="text-red-400">*</span></label>
-                                    <div className="flex gap-2">
-                                        <div className="relative group flex-1">
-                                            <Database className="absolute left-3 top-3 size-5 text-zinc-500 group-focus-within:text-purple-400 transition-colors" />
+                            <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                <h2 className="text-lg font-semibold text-purple-300 flex items-center gap-2">
+                                    <Film className="size-5" /> Identity
+                                </h2>
+                                <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest bg-zinc-800/50 px-2 py-0.5 rounded italic">
+                                    Slug Mode: Enabled
+                                </span>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-zinc-300">Movie Title <span className="text-red-400">*</span></label>
+                                        <div className="relative group">
                                             <input
                                                 type="text"
-                                                name="m_id"
+                                                name="title"
                                                 required
-                                                value={formData.m_id}
+                                                value={formData.title}
                                                 onChange={handleChange}
-                                                placeholder="e.g. 550"
-                                                disabled={isEditing}
-                                                className={`w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                placeholder="e.g. Fight Club"
+                                                className="w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 px-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-700"
                                             />
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={handleLoad}
-                                            disabled={fetching || !formData.m_id}
-                                            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
-                                        >
-                                            {fetching ? '...' : 'Load'}
-                                        </button>
                                     </div>
-                                    <p className="text-xs text-zinc-500">Enter ID and click Load to edit existing.</p>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-zinc-300">TMDB ID <span className="text-red-400">*</span></label>
+                                        <div className="flex gap-2">
+                                            <div className="relative group flex-1">
+                                                <Database className="absolute left-3 top-3 size-5 text-zinc-500 group-focus-within:text-purple-400 transition-colors" />
+                                                <input
+                                                    type="text"
+                                                    name="m_id"
+                                                    required
+                                                    value={formData.m_id}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. 550"
+                                                    disabled={isEditing}
+                                                    className={`w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                />
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleLoad()}
+                                                disabled={fetching || !formData.m_id}
+                                                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                                            >
+                                                {fetching ? '...' : 'Load'}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-300">Popularity Score</label>
-                                    <div className="relative group">
-                                        <TrendingUp className="absolute left-3 top-3 size-5 text-zinc-500 group-focus-within:text-purple-400 transition-colors" />
-                                        <input
-                                            type="number"
-                                            name="Popularity"
-                                            value={formData.Popularity}
-                                            onChange={handleChange}
-                                            placeholder="e.g. 85.5"
-                                            className="w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all"
-                                        />
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-zinc-300 flex items-center justify-between">
+                                            <span>SEO URL Slug</span>
+                                            <span className="text-[10px] text-zinc-500">Auto-generated</span>
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                name="slug"
+                                                value={formData.slug}
+                                                onChange={handleChange}
+                                                placeholder="fight-club-box-office-collection"
+                                                className="w-full bg-zinc-950/20 border border-purple-500/30 text-purple-400 font-mono text-xs rounded-xl py-3 px-4 focus:ring-2 focus:ring-purple-500/50 outline-none transition-all"
+                                            />
+                                        </div>
+                                        <div className="mt-2 bg-purple-500/5 border border-purple-500/10 rounded-lg p-2">
+                                            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-tighter mb-1">Live URL Preview</p>
+                                            <p className="text-xs text-purple-300/80 truncate">/movies/{formData.slug || '...'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-zinc-300">Popularity Score</label>
+                                        <div className="relative group">
+                                            <TrendingUp className="absolute left-3 top-3 size-5 text-zinc-500 group-focus-within:text-purple-400 transition-colors" />
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                name="Popularity"
+                                                value={formData.Popularity}
+                                                onChange={handleChange}
+                                                placeholder="e.g. 85.5"
+                                                className="w-full bg-zinc-950/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 outline-none transition-all placeholder:text-zinc-600"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

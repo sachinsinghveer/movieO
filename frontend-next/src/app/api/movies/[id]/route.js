@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
         await connectToMongo();
         const { id } = await params;
 
-        const movie = await Movie.findOne({ m_id: id }).lean(); // Added .lean()
+        const movie = await Movie.findOne({ $or: [{ m_id: id }, { slug: id }] }).lean();
 
         if (!movie) {
             return NextResponse.json(

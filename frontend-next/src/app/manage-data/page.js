@@ -243,7 +243,7 @@ const ManageData = () => {
                                                         <Trash2 className="size-4" />
                                                     </button>
                                                     <a
-                                                        href={`/movie/${movie.m_id}`}
+                                                        href={`/movies/${movie.slug || movie.m_id}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="p-2 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white rounded-lg transition-all"

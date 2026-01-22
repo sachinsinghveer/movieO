@@ -13,10 +13,10 @@ const genreMap = {
 
 const MovieCard = props => {
     const item = props?.item;
-    
-    // Priority: Use m_id (MongoDB) if available, else fallback to TMDB ID
-    const movieId = item.m_id || item.id;
-    const link = '/' + (item.category === 'tv' ? 'tv' : 'movie') + '/' + movieId;
+
+    // Priority: Use slug (SEO) if available, then m_id (DB ID), finally fallback to TMDB ID
+    const pathId = item.slug || item.m_id || item.id;
+    const link = item.category === 'tv' ? `/tv/${pathId}` : `/movies/${pathId}`;
 
     // 1. Image: Always use TMDB (since we merged it in Home.js)
     const poster = apiConfig.w500Image(item.poster_path || item.backdrop_path);
